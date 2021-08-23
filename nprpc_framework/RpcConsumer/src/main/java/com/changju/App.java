@@ -1,6 +1,7 @@
 package com.changju;
 
 import com.changju.consumer.RpcConsumer;
+import com.changju.controller.NrpcController;
 
 /**
  * Hello world!
@@ -16,13 +17,20 @@ public class App
         login_builder.setName("zhangsan");
         login_builder.setPwd("123456");
 
-        stub.login(null,login_builder.build(),response -> {
+        NrpcController con = new NrpcController();
+        stub.login(con,login_builder.build(), response -> {
             // 这里response是rpc方法调用完成以后的返回值
             System.out.println("receive rpc call response");
-            if(response.getErrno()==0){
-                System.out.println(response.getResult());
-            }else{  // 发生错误
-                System.out.println(response.getErrinfo());
+            // 表示rpc方法没有调用成功
+            if(con.failed()){
+                System.out.println(con.errorText());
+
+            }else{
+                if(response.getErrno()==0){
+                    System.out.println(response.getResult());
+                }else{  // 发生错误
+                    System.out.println(response.getErrinfo());
+                }
             }
         });
 

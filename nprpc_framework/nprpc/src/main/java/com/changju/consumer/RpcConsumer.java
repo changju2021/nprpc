@@ -83,16 +83,16 @@ public class RpcConsumer implements RpcChannel {
              * 这里的size有可能是0，因为rpcProvider封装Response响应的成员变量值可能为默认值
              */
             if(size>0){
-                System.out.println(">0");
                 recvbuf.write(rbuf,0,size);
                 rpcCallback.run(message1.getParserForType().parseFrom(recvbuf.toByteArray()));
             }else{
-                System.out.println("==0");
-                rpcCallback.run(message1.getParserForType().parseFrom(new byte[0]));
+                rpcCallback.run(message1.getParserForType().parseFrom(new byte[0]));//d等价于message1
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            rpcController.setFailed("Server connect error, check server!");
+            rpcCallback.run(message1);
         }finally {
             try {
                 if(out!=null) out.close();
