@@ -71,7 +71,7 @@ public class RpcProvider implements INotifyProvider{
      * 需要注册服务对象（UserServiceImpl）和服务方法（login、reg......）
      * @param service
      */
-    public void registerRpcProvider(Service service){
+    public void registerRpcService(Service service){
         Descriptors.ServiceDescriptor sd = service.getDescriptorForType();
         String serviceName = sd.getName();//获取服务对象名称
 
@@ -106,7 +106,7 @@ public class RpcProvider implements INotifyProvider{
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
         }
-        System.out.println("notifiy："+methodName);
+
         service.callMethod(md, null, request, response -> responsebuf.set(response.toByteArray()));
         return responsebuf.get();
     }

@@ -51,7 +51,7 @@ public class RpcConsumer implements RpcChannel {
         byte[] argsbuf = message.toByteArray();
 
         ByteBuf buf = Unpooled.buffer(4+metabuf.length+argsbuf.length);
-        buf.writeByte(metabuf.length);
+        buf.writeInt(metabuf.length);
         buf.writeBytes(metabuf);
         buf.writeBytes(argsbuf);
 
