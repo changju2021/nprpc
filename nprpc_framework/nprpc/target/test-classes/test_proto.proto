@@ -1,0 +1,24 @@
+syntax = "proto3";  //  定义proto的版本
+
+package com.changju; //  定义包名称，对应java代码文件的包路径
+
+option java_outer_classname = "testProto";  //   输出的java文件的名称
+option java_generic_services = true;
+
+//  定义数据类型
+message LoginRequest {
+    string name = 1;
+    string pwd = 2;
+}
+
+message RegRequest {
+    string name = 1;
+    string pwd = 2;
+    int32 age = 3;
+    enum SEX {
+        MAN = 0;
+        WOMAN = 1;
+    }
+    SEX sex = 4;
+    string phone = 5;
+}
