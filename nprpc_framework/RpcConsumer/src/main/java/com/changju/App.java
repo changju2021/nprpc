@@ -12,7 +12,7 @@ public class App
     public static void main( String[] args )
     {
         // 代理对象，要传入一个实现RpcChannel接口的对象
-        UserServiceProto.UserServiceRpc.Stub stub = UserServiceProto.UserServiceRpc.newStub(new RpcConsumer());
+        UserServiceProto.UserServiceRpc.Stub stub = UserServiceProto.UserServiceRpc.newStub(new RpcConsumer("config.properties"));
         UserServiceProto.LoginRequest.Builder login_builder = UserServiceProto.LoginRequest.newBuilder();
         login_builder.setName("zhangsan");
         login_builder.setPwd("123456");

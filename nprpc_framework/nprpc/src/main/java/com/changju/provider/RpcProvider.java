@@ -1,6 +1,7 @@
 package com.changju.provider;
 
 import com.changju.callback.INotifyProvider;
+import com.changju.util.ZkClientUtils;
 import com.google.protobuf.*;
 
 import java.io.IOException;
@@ -23,8 +24,10 @@ public class RpcProvider implements INotifyProvider{
      */
     private static final String SERVER_IP="ip";
     private static final String SERVER_PORT="port";
+    private static final String ZK_SERVER="zookeeper";
     private String serverIp;
     private int serverPort;
+    private String zkServer;
     private ThreadLocal<byte[]> responsebuf;
 
     /**
@@ -59,6 +62,20 @@ public class RpcProvider implements INotifyProvider{
                 System.out.println(a);
             });
         });*/
+        // TODO 将sevice和方法的ip和端口号注册给zookeeper
+        ZkClientUtils zk = new ZkClientUtils(zkServer);
+        serviceMap.forEach((k,v)->{
+            String path = "/"+k;
+            zk.createPersistent(path,null);
+
+            v.methodMap.forEach((a,b)->{
+                String methodPath = path+"/"+a;
+                zk.createEphemeral(methodPath,serverIp+":"+serverPort);
+                // 给临时节点添加监听器 watcher
+                zk.addWatcher(methodPath);
+                System.out.println("reg zk ->"+methodPath+":"+serverIp+serverPort);
+            });
+        });
         System.out.println("rpc start at "+"IP: "+serverIp+" "+"Port: "+serverPort);
         // 启动rpc server网络服务，等待远程rpc操作
         RpcServer server = new RpcServer(this);
@@ -81,7 +98,7 @@ public class RpcProvider implements INotifyProvider{
         List<Descriptors.MethodDescriptor> md = sd.getMethods();//获取对象的所有rpc方法
         md.forEach(method->{
             String methodName = method.getName();
-            System.out.println(methodName);
+//            System.out.println(methodName);
             serviceInfo.methodMap.put(methodName, method);
         });
         serviceMap.put(serviceName, serviceInfo);
@@ -129,6 +146,7 @@ public class RpcProvider implements INotifyProvider{
                 pro.load(Builder.class.getClassLoader().getResourceAsStream(file));
                 INSTANCE.setServerIp(pro.getProperty(SERVER_IP));
                 INSTANCE.setServerPort(Integer.parseInt(pro.getProperty(SERVER_PORT)) );
+                INSTANCE.setZkServer(pro.getProperty(ZK_SERVER));
                 return INSTANCE;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -159,5 +177,13 @@ public class RpcProvider implements INotifyProvider{
 
     public void setServerPort(Integer serverPort) {
         this.serverPort = serverPort;
+    }
+
+    public String getZkServer() {
+        return zkServer;
+    }
+
+    public void setZkServer(String zkServer) {
+        this.zkServer = zkServer;
     }
 }
